@@ -36,7 +36,7 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	AS_Badges1.Radius = 12dip
 	AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_FadeIn
 	
-	For i = 0 To 20 -1	
+	For i = 0 To 20 -1
 		
 		If i > 5 Then
 			Dim BadgeProperties As AS_Badges_BadgeProperties = AS_Badges1.BadgeProperties
@@ -60,8 +60,12 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 		Sleep(1000)
 		
 	Next
-	
 
+	Dim BadgeProperties As AS_Badges_BadgeProperties = AS_Badges1.BadgeProperties
+	BadgeProperties.Orientation = AS_Badges1.Orientation_BottomRight
+	AS_Badges1.BadgeProperties = BadgeProperties
+	
+	AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_FadeIn
 	
 End Sub
 

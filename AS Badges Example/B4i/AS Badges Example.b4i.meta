@@ -7,6 +7,6 @@ ModuleBreakpoints2=
 ModuleClosedNodes0=4
 ModuleClosedNodes1=
 ModuleClosedNodes2=1
-NavigationStack=AS_Badges,getOrientation_BottomRight,187,0,AS_Badges,getBadgeProperties,151,1,AS_Badges,setRadius,167,0,AS_Badges,CreateOrUpdateBadge,42,0,Main,Process_Globals,15,0,B4XMainPage,B4XPage_Created,46,6,AS_Badges,UpdateStyle,62,6,AS_Badges,Class_Globals,12,0,Visual Designer,frm_main.bil,-100,6,AS_Badges,CreateNewPanel,128,1,AS_Badges,GetLabel,119,0
+NavigationStack=AS_Badges,Class_Globals,45,4,AS_Badges,UpdateStyle,106,2,AS_Badges,getxGap,146,3,AS_Badges,setxGap,150,5,AS_Badges,getyGap,148,0,AS_Badges,GetBadgeCounter,147,0,AS_Badges,setyGap,157,0,B4XMainPage,B4XPage_Created,38,5
 SelectedBuild=0
 VisibleModules=2,1

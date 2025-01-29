@@ -18,6 +18,14 @@ V1.01
 V1.02
 	-Breaking Change - Initialize needs now a CallBack and a EventName
 	-Add Event Click
+V1.03
+	-BugFixes
+	-Add set AutoRemove - Removes the badge if the value is 0
+		-Default: True
+V1.04
+	-Property descriptions added
+	-Add get and set xGap and yGap - This allows you to change the position of the badge. e.g. position it further to the left or higher up so that it matches the design.
+		-Default: 0
 #End If
 
 #Event: Click (Parent As B4XView)
@@ -39,6 +47,9 @@ Sub Class_Globals
 	Private m_FadeInDuration As Long = 250
 	Private m_TextDuration As Long = 500
 	Private m_TextAnimation As String
+	Private m_AutoRemove As Boolean = True
+	Private m_xGap As Float = 0
+	Private m_yGap As Float = 0
 End Sub
 
 '<code>AS_Badges1.Initialize(Me,"Badges1")</code>
@@ -62,17 +73,22 @@ End Sub
 
 Private Sub CreateOrUpdateBadge(View As B4XView, Badge As Int,Properties As AS_Badges_BadgeProperties)
 	If views.ContainsKey(View) Then
-		If Badge = 0 Then
+		If Badge = 0 And m_AutoRemove Then
 			RemoveBadge(View)
 		Else
 			ReplaceLabel(View, Badge)
 		End If
 	Else
-		If Badge > 0 Then
+		If Badge > 0 Or m_AutoRemove = False Then
 			Dim xpnl_Badge As B4XView = CreateNewPanel(View)
 			xpnl_Badge.Tag = View
 			CreateLabel(xpnl_Badge, Badge)
+			#If B4J
+			xpnl_Badge.SetLayoutAnimated(0, cx - m_Radius, cy - m_Radius, m_Radius * 2, m_Radius * 2)
+			xpnl_Badge.SetVisibleAnimated(m_FadeInDuration,True)
+			#Else
 			xpnl_Badge.SetLayoutAnimated(m_FadeInDuration, cx - m_Radius, cy - m_Radius, m_Radius * 2, m_Radius * 2)
+			#End If
 			views.Put(View,xpnl_Badge)
 		End If
 	End If
@@ -91,11 +107,11 @@ Private Sub UpdateStyle(View As B4XView,Properties As AS_Badges_BadgeProperties)
 	End If
 	
 	If Properties.Orientation = getOrientation_TopRight Or Properties.Orientation = getOrientation_TopLeft Then
-		cx = View.Left + IIf(Properties.Orientation = getOrientation_TopRight,View.Width,0)
-		cy = View.Top
+		cx = View.Left + IIf(Properties.Orientation = getOrientation_TopRight,View.Width,0) + m_xGap
+		cy = View.Top + m_yGap
 	Else if Properties.Orientation = getOrientation_BottomRight Or Properties.Orientation = getOrientation_BottomLeft Then
-		cx = View.Left + IIf(Properties.Orientation = getOrientation_BottomRight,View.Width,0)
-		cy = View.Top + View.Height
+		cx = View.Left + IIf(Properties.Orientation = getOrientation_BottomRight,View.Width,0) + m_xGap
+		cy = View.Top + View.Height + m_yGap
 	End If
 	
 	xpnl_Badge.SetLayoutAnimated(0,cx - m_Radius, cy - m_Radius, m_Radius * 2, m_Radius * 2)
@@ -134,6 +150,32 @@ Public Sub GetBadgeCounter(view As B4XView) As Int
 	End If
 End Sub
 
+'This allows you to change the position of the badge. e.g. position it further to the left or higher up so that it matches the design.
+'Default: 0
+Public Sub getyGap As Float
+	Return m_yGap
+End Sub
+
+Public Sub setyGap(Gap As Float)
+	m_yGap = Gap
+End Sub
+
+'This allows you to change the position of the badge. e.g. position it further to the left or higher up so that it matches the design.
+'Default: 0
+Public Sub getxGap As Float
+	Return m_xGap
+End Sub
+
+Public Sub setxGap(Gap As Float)
+	m_xGap = Gap
+End Sub
+
+'Removes the badge if the value is 0
+'Default: True
+Public Sub setAutoRemove(Remove As Boolean)
+	m_AutoRemove = Remove
+End Sub
+
 'Default: 250
 Public Sub getFadeInDuration As Long
 	Return m_FadeInDuration
@@ -143,6 +185,8 @@ Public Sub setFadeInDuration(Duration As Long)
 	m_FadeInDuration = Duration
 End Sub
 
+'Gets or sets the text animation
+'<code>AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_FadeIn</code>
 Public Sub getTextAnimation As String
 	Return m_TextAnimation
 End Sub
@@ -151,7 +195,7 @@ Public Sub setTextAnimation(AnimationName As String)
 	m_TextAnimation = AnimationName
 End Sub
 
-'Default: 250
+'Default: 500
 Public Sub getTextDuration As Long
 	Return m_TextDuration
 End Sub
@@ -198,7 +242,7 @@ Private Sub CreateLabel(p As B4XView, count As Int)
 	End If
 	
 	xlbl.TextColor = g_BadgeProperties.TextColor
-	xlbl.Text = count
+	xlbl.Text = IIf(count = 0,"", count)
 	p.AddView(xlbl, m_Radius, m_Radius, 0, 0)
 	xlbl.SetTextAlignment("CENTER", "CENTER")
 	Dim duration As Int = m_TextDuration
@@ -219,6 +263,11 @@ End Sub
 
 #Region Properties
 
+'<code>
+'	Dim BadgeProperties As AS_Badges_BadgeProperties = AS_Badges1.BadgeProperties
+'	BadgeProperties.Orientation = AS_Badges1.Orientation_BottomRight
+'	AS_Badges1.BadgeProperties = BadgeProperties
+'</code>
 Public Sub getBadgeProperties As AS_Badges_BadgeProperties
 	Dim Properties As AS_Badges_BadgeProperties = CreateAS_Badges_BadgeProperties(g_BadgeProperties.BackgroundColor,g_BadgeProperties.TextColor,g_BadgeProperties.xFont,g_BadgeProperties.Orientation)
 	Return Properties
@@ -228,6 +277,8 @@ Public Sub setBadgeProperties(Properties As AS_Badges_BadgeProperties)
 	g_BadgeProperties = Properties
 End Sub
 
+'Get or set the radius
+'Default: 15dip
 Public Sub getRadius As Float
 	Return m_Radius
 End Sub
@@ -240,30 +291,37 @@ End Sub
 
 #Region Enums
 
+'<code>BadgeProperties.Orientation = AS_Badges1.Orientation_TopLeft</code>
 Public Sub getOrientation_TopLeft As String
 	Return "TopLeft"
 End Sub
 
+'<code>BadgeProperties.Orientation = AS_Badges1.Orientation_TopRight</code>
 Public Sub getOrientation_TopRight As String
 	Return "TopRight"
 End Sub
 
+'<code>BadgeProperties.Orientation = AS_Badges1.Orientation_BottomLeft</code>
 Public Sub getOrientation_BottomLeft As String
 	Return "BottomLeft"
 End Sub
 
+'<code>BadgeProperties.Orientation = AS_Badges1.Orientation_BottomRightt</code>
 Public Sub getOrientation_BottomRight As String
 	Return "BottomRight"
 End Sub
 
+'<code>'<code>AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_Slide</code></code>
 Public Sub getTextAnimation_Slide As String
 	Return "Slide"
 End Sub
 
+'<code>'<code>AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_Growth</code></code>
 Public Sub getTextAnimation_Growth As String
 	Return "Growth"
 End Sub
 
+'<code>'<code>AS_Badges1.TextAnimation = AS_Badges1.TextAnimation_FadeIn</code></code>
 Public Sub getTextAnimation_FadeIn As String
 	Return "FadeIn"
 End Sub
